@@ -5,17 +5,24 @@ phases:
     commands:
       - aws cloudformation validate-template --template-body file://backend.yml
 
+env:
+  exported-variables:
+    - DEPLOY_ENV
+
   build:
     commands:
       - |
         if [[ "$BRANCH_NAME" == main* ]]; then
           DEPLOY_ENV="stage";
+          export DEPLOY_ENV="stage"
         elif [[ "$BRANCH_NAME" == feature* ]]; then
           DEPLOY_ENV="dev";
         else
           echo "Error: BRANCH_NAME must start with 'main' or 'feature'."
+          export DEPLOY_ENV="dev"
           exit 1;
         fi
+        echo "DEPLOY_ENV=$DEPLOY_ENV"
       - aws cloudformation deploy --template-file backend.yml --stack-name BaseInfraStack-$DEPLOY_ENV --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --parameter-overrides Environment=$DEPLOY_ENV --no-fail-on-empty-changeset
       - aws cloudformation wait stack-create-complete --stack-name BaseInfraStack-$DEPLOY_ENV
 
