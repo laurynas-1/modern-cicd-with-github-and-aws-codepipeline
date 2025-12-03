@@ -1,13 +1,13 @@
 version: 0.2
 
+env:
+  exported-variables:
+    - DEPLOY_ENV
+
 phases:
   pre_build:
     commands:
       - aws cloudformation validate-template --template-body file://backend.yml
-
-env:
-  exported-variables:
-    - DEPLOY_ENV
 
   build:
     commands:
